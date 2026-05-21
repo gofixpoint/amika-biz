@@ -1,6 +1,8 @@
+import { spawnSync } from "node:child_process";
 import { Command } from "commander";
 import { getGlobalOpts } from "./main.js";
 import { loadConfig, listMailAccounts } from "../mail/config.js";
+import { hasMbsync } from "../mail/deps.js";
 import { CONFIG_TOML_EXAMPLE } from "../mail/setup.js";
 
 export function registerMailCommand(program: Command): void {
@@ -8,33 +10,65 @@ export function registerMailCommand(program: Command): void {
 
   const setup = mail
     .command("setup")
-    .description("Add a mail account to the biz config")
-    .requiredOption("--name <name>", "account name, e.g. fixpoint")
-    .requiredOption("--mbsync-box <path>", "path to the mbsync Maildir root")
-    .requiredOption(
-      "--md-box <path>",
-      "path to the markdown output directory",
+    .description(
+      "Add a mail account: interactive wizard, or pass --no-interactive with flags",
     )
-    .option("--force", "overwrite if the account already exists", false)
+    .option("--name <name>", "account name, e.g. fixpoint")
+    .option("--email <addr>", "Gmail address for this account")
+    .option("--mbsync-box <path>", "path to the mbsync Maildir root")
+    .option("--md-box <path>", "path to the markdown output directory")
+    .option(
+      "--password-file <path>",
+      "file containing the Gmail app password (required with --no-interactive)",
+    )
+    .option(
+      "--no-interactive",
+      "run non-interactively; requires --name/--email/--mbsync-box/--md-box/--password-file",
+    )
+    .option("--force", "overwrite the config.toml section if it already exists", false)
     .action(
       async (opts: {
-        name: string;
-        mbsyncBox: string;
-        mdBox: string;
+        name?: string;
+        email?: string;
+        mbsyncBox?: string;
+        mdBox?: string;
+        passwordFile?: string;
+        interactive: boolean;
         force: boolean;
       }) => {
+        if (process.platform !== "darwin") {
+          console.error("biz mail setup is supported on macOS only.");
+          process.exit(1);
+        }
         const globalOpts = getGlobalOpts();
-        const { setupMailAccount } = await import("../mail/setup.js");
         try {
-          const result = setupMailAccount({
-            configPath: globalOpts.config,
-            name: opts.name,
-            mbsyncBox: opts.mbsyncBox,
-            mdBox: opts.mdBox,
-            force: opts.force,
-          });
-          const verb = result.replaced ? "updated" : "added";
-          console.log(`${verb} [mail.${opts.name}] in ${result.written}`);
+          if (opts.interactive === false) {
+            const missing: string[] = [];
+            if (!opts.name) missing.push("--name");
+            if (!opts.email) missing.push("--email");
+            if (!opts.mbsyncBox) missing.push("--mbsync-box");
+            if (!opts.mdBox) missing.push("--md-box");
+            if (!opts.passwordFile) missing.push("--password-file");
+            if (missing.length > 0) {
+              console.error(
+                `--no-interactive requires: ${missing.join(", ")}`,
+              );
+              process.exit(1);
+            }
+            const { runNonInteractive } = await import("../mail/wizard.js");
+            runNonInteractive({
+              configPath: globalOpts.config,
+              name: opts.name!,
+              email: opts.email!,
+              mbsyncBox: opts.mbsyncBox!,
+              mdBox: opts.mdBox!,
+              passwordFile: opts.passwordFile!,
+              force: opts.force,
+            });
+            return;
+          }
+          const { runWizard } = await import("../mail/wizard.js");
+          await runWizard({ configPath: globalOpts.config });
         } catch (err) {
           console.error((err as Error).message);
           process.exit(1);
@@ -44,7 +78,7 @@ export function registerMailCommand(program: Command): void {
 
   setup.addHelpText(
     "after",
-    `\nConfig file format (~/.config/fixpoint/biz/config.toml):\n\n${indent(CONFIG_TOML_EXAMPLE, "  ")}\nMultiple [mail.<name>] sections can be added; each \`biz mail setup\` invocation appends or replaces one.`,
+    `\nConfig file format (~/.config/amika-biz/config.toml):\n\n${indent(CONFIG_TOML_EXAMPLE, "  ")}\nMultiple [mail.<name>] sections can be added; each \`biz mail setup\` invocation appends or replaces one.`,
   );
 
   const mbox = mail.command("mbox").description("Manage configured mailboxes");
@@ -155,6 +189,32 @@ export function registerMailCommand(program: Command): void {
           stateDir: globalOpts.stateDir,
           opts,
         });
+      }
+    });
+
+  mail
+    .command("sync")
+    .description(
+      "Run mbsync for the given account, or all configured accounts when omitted",
+    )
+    .argument("[account]", "account name from config.toml ([mail.<account>])")
+    .action((account: string | undefined) => {
+      if (!hasMbsync()) {
+        console.error(
+          "mbsync (isync) is not installed. Install it with:\n  brew install isync",
+        );
+        process.exit(1);
+      }
+      const globalOpts = getGlobalOpts();
+      const cfg = loadConfig(globalOpts.config);
+      const accounts = resolveAccounts(cfg, account, account === undefined);
+      for (const name of accounts) {
+        console.log(`$ mbsync ${name}`);
+        const sp = spawnSync("mbsync", [name], { stdio: "inherit" });
+        if (sp.status !== 0) {
+          console.error(`mbsync ${name} exited with status ${sp.status}.`);
+          process.exit(sp.status ?? 1);
+        }
       }
     });
 
