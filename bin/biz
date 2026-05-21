@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+ROOT_DIR=$(realpath "${SCRIPT_DIR}/..")
+
+cd "$ROOT_DIR"
+
+# Parse --no-op flag (consumed here, not forwarded to the TS CLI)
+USE_OP=true
+ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "--no-op" ]]; then
+    USE_OP=false
+  else
+    ARGS+=("$arg")
+  fi
+done
+
+TSX=(npx --prefix "src/ts" tsx "src/ts/cmd/main.ts")
+
+if [[ "$USE_OP" == true ]] && [[ -f ".env.local" ]]; then
+  # Prevent overmind from auto-loading .env.local so that
+  # 1Password env variables are injected into the environment
+  OVERMIND_SKIP_ENV=true op run --no-masking --env-file=".env.local" -- "${TSX[@]}" --skip-env ${ARGS[@]+"${ARGS[@]}"}
+else
+  "${TSX[@]}" ${ARGS[@]+"${ARGS[@]}"}
+fi

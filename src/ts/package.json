@@ -1,0 +1,30 @@
+{
+  "name": "biz-ts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "TypeScript scripts and integrations for the biz repo.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "format": "pnpm dlx prettier --write .",
+    "formatcheck": "pnpm dlx prettier --check .",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@workos-inc/node": "^9.0.0",
+    "commander": "^14.0.3",
+    "dotenv": "^16.5.0",
+    "mailparser": "^3.9.8",
+    "turndown": "^7.2.4"
+  },
+  "devDependencies": {
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^25.6.0",
+    "@types/turndown": "^5.0.6",
+    "eslint": "^9.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.0.0"
+  }
+}
