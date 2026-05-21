@@ -3,7 +3,7 @@
 A CLI to do business grunt work for you. Right now, this syncs GMail to
 Markdown. macOS only right now.
 
-Made with love by [Amika](https://www.amika.dev/).
+Made with love by [Amika](https://github.com/gofixpoint/amika). Join us on [Discord](https://discord.gg/xDXk4KjGWg) to chat about software factories and agentic software.
 
 ## Quickstart
 
