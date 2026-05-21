@@ -5,6 +5,53 @@ Markdown. macOS only right now.
 
 Made with love by [Amika](https://www.amika.dev/).
 
+## Quickstart
+
+1. Install the prerequisites (macOS + [Homebrew](https://brew.sh)):
+
+   ```bash
+   brew install isync node fd ripgrep
+   ```
+
+2. Grab a Gmail [App Password](https://myaccount.google.com/apppasswords).
+   Your normal Gmail password won't work.
+
+3. Run the setup wizard. It prompts for a nickname, your email, and the
+   app password (hidden input), then wires up `~/.mbsyncrc`, the macOS
+   Keychain, and `~/.config/amika-biz/config.toml` for you:
+
+   ```bash
+   ./bin/biz mail setup
+   ```
+
+   Re-run it for each additional Gmail account.
+
+4. Pull mail down and convert it to markdown:
+
+   ```bash
+   ./bin/biz mail sync             # mbsync every configured account
+   ./bin/biz mail convert --all    # turn .eml into one .md per message
+   ```
+
+5. Search across every mailbox:
+
+   ```bash
+   biz mail rg 'workos rollout'             # full-text grep
+   biz mail rg -l 'thread_id: 4f2b9a1e'     # list files in a thread
+   biz mail fd -e md 'invoice'              # find files by name
+   ```
+
+6. Let an agent search your mail too. The `mail` skill in
+   `.agents/skills/mail/SKILL.md` is auto-loaded by Claude Code from this
+   repo — open Claude Code in this directory and ask things like
+   *"find every email from alice@example.com about workos"* or *"summarise
+   the thread starting with this message"*. The skill teaches the agent
+   the on-disk layout and frontmatter so it can use `biz mail rg` / `fd`
+   itself.
+
+The rest of this README explains how the pieces fit together and the
+flags worth knowing for backfills and unattended use.
+
 ## How it works
 
 ```
@@ -34,38 +81,7 @@ mbsync_box = "~/mail/<name>"
 md_box     = "~/mail/<name>-md"
 ```
 
-## Set up mail
-
-Prerequisites:
-
-- macOS
-- Homebrew
-- `brew install isync node`
-- A Gmail [App Password](https://myaccount.google.com/apppasswords) for each
-  account you want to sync (your normal password won't work).
-
-Then run the interactive wizard, once per Gmail account:
-
-```bash
-./bin/biz mail setup
-```
-
-It will:
-
-1. Prompt for a nickname for the account.
-2. Print the App Password URL.
-3. Prompt for the email address and app password (the password input is
-   hidden and never appears in `ps`).
-4. Store the password in the Keychain under `gmail-mbsync-<nickname>`.
-5. Append an `IMAPAccount <nickname>` block to `~/.mbsyncrc`.
-6. Add a `[mail.<nickname>]` section to `~/.config/amika-biz/config.toml`.
-7. Offer to run `mbsync <nickname>` immediately.
-
-Re-running the wizard with a nickname that already has an `IMAPAccount`
-block in `~/.mbsyncrc` skips the mbsync side and just updates the
-`config.toml` section.
-
-### Scripted setup
+## Scripted setup
 
 For unattended use, pass `--no-interactive` along with every required flag:
 
