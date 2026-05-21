@@ -1,7 +1,9 @@
 # amika-biz
 
-Local-first business tooling. Today this is a Gmail → Maildir → Markdown
-pipeline plus a small CLI (`biz`) that wraps the pieces. macOS only.
+A CLI to do business grunt work for you. Right now, this syncs GMail to
+Markdown. macOS only right now.
+
+Made with love by [Amika](https://www.amika.dev/).
 
 ## How it works
 
@@ -18,15 +20,11 @@ Gmail (IMAP)
 Pieces:
 
 - **`mbsync`** (from `isync`) pulls IMAP folders into a local Maildir tree.
-  Credentials come from the macOS Keychain via a `PassCmd` in `~/.mbsyncrc`,
-  so the app password never sits on disk in cleartext.
-- **`biz mail convert`** parses each `.eml` into a markdown file with YAML
-  frontmatter (from/to/date/thread_id/etc.) and extracts attachments. It
-  watermarks progress per account+folder in `~/.local/state/amika-biz/` so
-  re-runs only process new messages.
-- **`biz mail fd` / `biz mail rg`** are thin passthroughs that prepend every
-  configured `md_box` as a search root, so you can search across all
-  mailboxes at once.
+  Credentials are stored in your macOS Keychain.
+- **`biz mail convert`** parses your emails into markdown files with YAML
+  frontmatter (from/to/date/thread_id/etc.) and extracts attachments.
+- **`biz mail fd` / `biz mail rg`** use `fd` and `ripgrep` to search through
+  the markdown emails.
 
 Per-mailbox config lives in `~/.config/amika-biz/config.toml`:
 
