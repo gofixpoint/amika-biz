@@ -1,6 +1,8 @@
+import { spawnSync } from "node:child_process";
 import { Command } from "commander";
 import { getGlobalOpts } from "./main.js";
 import { loadConfig, listMailAccounts } from "../mail/config.js";
+import { hasMbsync } from "../mail/deps.js";
 import { CONFIG_TOML_EXAMPLE } from "../mail/setup.js";
 
 export function registerMailCommand(program: Command): void {
@@ -187,6 +189,32 @@ export function registerMailCommand(program: Command): void {
           stateDir: globalOpts.stateDir,
           opts,
         });
+      }
+    });
+
+  mail
+    .command("sync")
+    .description(
+      "Run mbsync for the given account, or all configured accounts when omitted",
+    )
+    .argument("[account]", "account name from config.toml ([mail.<account>])")
+    .action((account: string | undefined) => {
+      if (!hasMbsync()) {
+        console.error(
+          "mbsync (isync) is not installed. Install it with:\n  brew install isync",
+        );
+        process.exit(1);
+      }
+      const globalOpts = getGlobalOpts();
+      const cfg = loadConfig(globalOpts.config);
+      const accounts = resolveAccounts(cfg, account, account === undefined);
+      for (const name of accounts) {
+        console.log(`$ mbsync ${name}`);
+        const sp = spawnSync("mbsync", [name], { stdio: "inherit" });
+        if (sp.status !== 0) {
+          console.error(`mbsync ${name} exited with status ${sp.status}.`);
+          process.exit(sp.status ?? 1);
+        }
       }
     });
 
