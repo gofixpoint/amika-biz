@@ -87,7 +87,7 @@ For unattended use, pass `--no-interactive` along with every required flag:
   --email me@example.com \
   --mbsync-box ~/mail/work \
   --md-box ~/mail/work-md \
-  --password-file ~/.secrets/work-gmail-app-password
+  --password-file /tmp/secrets/work-gmail-app-password
 ```
 
 The app password is only ever read from `--password-file`; there is no
