@@ -103,29 +103,19 @@ You’ll create one password per Gmail account.
 
 # 5. Store Passwords in macOS Keychain
 
-## Fixpoint Account
+For each Gmail account, store its app password in the Keychain. Pick a short
+nickname for the account (e.g. `work`, `personal`) — you'll reuse it in the
+`mbsync` config below.
 
 ```bash
 security add-generic-password \
-  -a dylan@fixpoint.co \
-  -s gmail-mbsync-fixpoint \
+  -a <your-email@example.com> \
+  -s gmail-mbsync-<account-nickname> \
   -w
 ```
 
-Paste the app password.
-
----
-
-## Amika Account
-
-```bash
-security add-generic-password \
-  -a dylan@amika.dev \
-  -s gmail-mbsync-amika \
-  -w
-```
-
-Paste the app password.
+Paste the app password when prompted. Repeat for each Gmail account you want to
+sync.
 
 ---
 
@@ -143,68 +133,41 @@ Open it:
 nano ~/.mbsyncrc
 ```
 
-Add:
+Add one block per Gmail account, substituting `<account-nickname>` and
+`<your-email@example.com>` to match the values you used in step 5:
 
 ```ini
 ########################
-# Fixpoint
+# <account-nickname>
 ########################
 
-IMAPAccount fixpoint
+IMAPAccount <account-nickname>
 Host imap.gmail.com
-User dylan@fixpoint.co
-PassCmd "security find-generic-password -a dylan@fixpoint.co -s gmail-mbsync-fixpoint -w"
+User <your-email@example.com>
+PassCmd "security find-generic-password -a <your-email@example.com> -s gmail-mbsync-<account-nickname> -w"
 TLSType IMAPS
 AuthMechs LOGIN
 CertificateFile /opt/homebrew/etc/openssl@3/cert.pem
 
-IMAPStore fixpoint-remote
-Account fixpoint
+IMAPStore <account-nickname>-remote
+Account <account-nickname>
 
-MaildirStore fixpoint-local
-Path ~/mail/fixpoint/
-Inbox ~/mail/fixpoint/INBOX/
+MaildirStore <account-nickname>-local
+Path ~/mail/<account-nickname>/
+Inbox ~/mail/<account-nickname>/INBOX/
 SubFolders Verbatim
 
-Channel fixpoint
-Far :fixpoint-remote:
-Near :fixpoint-local:
-Patterns *
-Create Near
-SyncState *
-Sync All
-
-
-########################
-# Amika
-########################
-
-IMAPAccount amika
-Host imap.gmail.com
-User dylan@amika.dev
-PassCmd "security find-generic-password -a dylan@amika.dev -s gmail-mbsync-amika -w"
-TLSType IMAPS
-AuthMechs LOGIN
-CertificateFile /opt/homebrew/etc/openssl@3/cert.pem
-
-IMAPStore amika-remote
-Account amika
-
-MaildirStore amika-local
-Path ~/mail/amika/
-Inbox ~/mail/amika/INBOX/
-SubFolders Verbatim
-
-Channel amika
-Far :amika-remote:
-Near :amika-local:
+Channel <account-nickname>
+Far :<account-nickname>-remote:
+Near :<account-nickname>-local:
 Patterns *
 Create Near
 SyncState *
 Sync All
 ```
 
-Save and exit.
+Duplicate the block for additional accounts, changing the nickname and email
+each time. Save and exit.
 
 ---
 
@@ -216,19 +179,16 @@ Sync all accounts:
 mbsync -a
 ```
 
-This creates:
+This creates one Maildir tree per account:
 
 ```text
-~/mail/fixpoint/
-~/mail/amika/
+~/mail/<account-nickname>/
 ```
 
-Each email becomes a raw `.eml` file in Maildir format.
-
-Example:
+Each email becomes a raw `.eml` file in Maildir format, e.g.:
 
 ```text
-~/mail/fixpoint/INBOX/cur/
+~/mail/<account-nickname>/INBOX/cur/
 ```
 
 ---
@@ -238,11 +198,10 @@ Example:
 ```text
 ~/email-archive/
 ├── markdown/
-│   ├── fixpoint/
-│   │   └── 2026/
-│   │       └── 05/
-│   │           └── email-subject.md
-│   └── amika/
+│   └── <account-nickname>/
+│       └── 2026/
+│           └── 05/
+│               └── email-subject.md
 └── attachments/
 ```
 
@@ -250,7 +209,7 @@ Each email becomes a Markdown file like:
 
 ```md
 ---
-account: "fixpoint"
+account: "<account-nickname>"
 subject: "Weekly Update"
 from:
   - "someone@example.com"
