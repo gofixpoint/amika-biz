@@ -33,7 +33,7 @@ Made with love by [Amika](https://github.com/gofixpoint/amika). Join us on [Disc
 4. Search across every mailbox:
 
    ```bash
-   biz mail rg 'workos rollout'             # full-text grep
+   biz mail rg 'customer rollout'           # full-text grep
    biz mail rg -l 'thread_id: 4f2b9a1e'     # list files in a thread
    biz mail fd -e md 'invoice'              # find files by name
    ```
@@ -41,9 +41,10 @@ Made with love by [Amika](https://github.com/gofixpoint/amika). Join us on [Disc
 5. Let an agent search your mail too. The `mail` skill in
    `.agents/skills/mail/SKILL.md` (symlinked to `.claude/`, too) is auto-loaded
    by your agent. Open Claude Code or Codex in this directory and ask things
-   like *"find every email from alice@example.com about workos"* or *"summarise
-   the thread starting with this message"*. The skill teaches the agent the
-   on-disk layout and frontmatter so it can use `biz mail rg` / `fd` itself.
+   like *"find every email I sent to a customer in the last 3 weeks who I
+   should follow up with"* or *"summarise the thread starting with this
+   message"*. The skill teaches the agent the on-disk layout and frontmatter so
+   it can use `biz mail rg` / `fd` itself.
 
 The rest of this README explains how the pieces fit together and the
 flags worth knowing for backfills and unattended use.
