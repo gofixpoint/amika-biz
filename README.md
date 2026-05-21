@@ -13,10 +13,7 @@ Made with love by [Amika](https://www.amika.dev/).
    brew install isync node fd ripgrep
    ```
 
-2. Grab a Gmail [App Password](https://myaccount.google.com/apppasswords).
-   Your normal Gmail password won't work.
-
-3. Run the setup wizard. It prompts for a nickname, your email, and the
+2. Run the setup wizard. It prompts for a nickname, your email, and the
    app password (hidden input), then wires up `~/.mbsyncrc`, the macOS
    Keychain, and `~/.config/amika-biz/config.toml` for you:
 
@@ -26,14 +23,14 @@ Made with love by [Amika](https://www.amika.dev/).
 
    Re-run it for each additional Gmail account.
 
-4. Pull mail down and convert it to markdown:
+3. Pull mail down and convert it to markdown:
 
    ```bash
    ./bin/biz mail sync             # mbsync every configured account
    ./bin/biz mail convert --all    # turn .eml into one .md per message
    ```
 
-5. Search across every mailbox:
+4. Search across every mailbox:
 
    ```bash
    biz mail rg 'workos rollout'             # full-text grep
@@ -41,13 +38,12 @@ Made with love by [Amika](https://www.amika.dev/).
    biz mail fd -e md 'invoice'              # find files by name
    ```
 
-6. Let an agent search your mail too. The `mail` skill in
-   `.agents/skills/mail/SKILL.md` is auto-loaded by Claude Code from this
-   repo — open Claude Code in this directory and ask things like
-   *"find every email from alice@example.com about workos"* or *"summarise
-   the thread starting with this message"*. The skill teaches the agent
-   the on-disk layout and frontmatter so it can use `biz mail rg` / `fd`
-   itself.
+5. Let an agent search your mail too. The `mail` skill in
+   `.agents/skills/mail/SKILL.md` (symlinked to `.claude/`, too) is auto-loaded
+   by your agent. Open Claude Code or Codex in this directory and ask things
+   like *"find every email from alice@example.com about workos"* or *"summarise
+   the thread starting with this message"*. The skill teaches the agent the
+   on-disk layout and frontmatter so it can use `biz mail rg` / `fd` itself.
 
 The rest of this README explains how the pieces fit together and the
 flags worth knowing for backfills and unattended use.
