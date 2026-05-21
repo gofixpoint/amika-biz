@@ -19,13 +19,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const GMAIL_INSTRUCTIONS = [
   "Before continuing, make sure this Gmail account is ready:",
   "",
-  "  1. Enable IMAP:",
-  '       Gmail → Settings → "See all settings" → Forwarding and POP/IMAP',
-  "       → IMAP access → Enable IMAP → Save.",
-  "",
-  "  2. Create an App Password (your normal Gmail password will not work):",
+  "  1. Create an App Password (your normal Gmail password will not work):",
   "       https://myaccount.google.com/apppasswords",
-  "       App: Mail   Device: Mac   → click Create.",
   "",
   "When you have the 16-character app password ready, press Enter to continue.",
 ].join("\n");
