@@ -15,8 +15,7 @@ export type BizConfig = {
 export const DEFAULT_CONFIG_PATH = path.join(
   homedir(),
   ".config",
-  "fixpoint",
-  "biz",
+  "amika-biz",
   "config.toml",
 );
 
@@ -24,8 +23,7 @@ export const DEFAULT_STATE_DIR = path.join(
   homedir(),
   ".local",
   "state",
-  "fixpoint",
-  "biz",
+  "amika-biz",
 );
 
 function expandHome(p: string): string {

@@ -9,7 +9,7 @@ This repo's `biz mail` tooling converts mbsync Maildirs into one markdown file p
 
 ## Config
 
-`~/.config/fixpoint/biz/config.toml` defines one section per mailbox:
+`~/.config/amika-biz/config.toml` defines one section per mailbox:
 
 ```toml
 [mail.fixpoint]
@@ -37,7 +37,7 @@ List configured mailboxes and their `mbsync_box` / `md_box` paths. Use this firs
 
 ### `biz mail convert <account> | --all [flags]`
 
-Convert mbsync messages into markdown. Watermarks progress per-account-per-folder by file mtime in `~/.local/state/fixpoint/biz/mail-state.json`, so re-runs only process new mail.
+Convert mbsync messages into markdown. Watermarks progress per-account-per-folder by file mtime in `~/.local/state/amika-biz/mail-state.json`, so re-runs only process new mail.
 
 Flags worth knowing:
 
